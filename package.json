@@ -1,0 +1,49 @@
+{
+	"name": "@diaspora/dev-adapter-base",
+	"version": "0.3.4",
+	"description": "🔨 FOR DEVELOPMENT PURPOSE ONLY! An abstract adapter for @diaspora/diaspora, that should be extended by all other adapters.",
+	"main": "index.js",
+	"scripts": {
+		"test": "jest",
+		"build": "tsc"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/diaspora-orm/dev-adapter-base.git"
+	},
+	"keywords": [
+		"diaspora",
+		"adapter",
+		"node",
+		"browser",
+		"orm",
+		"db",
+		"collection",
+		"database",
+		"query",
+		"object"
+	],
+	"author": {
+		"name": "Gerkin",
+		"email": "nihilivin@gmail.com",
+		"url": "https://www.gerkindevelopment.net"
+	},
+	"license": "Apache-2.0",
+	"bugs": {
+		"url": "https://github.com/diaspora-orm/dev-adapter-base/issues"
+	},
+	"homepage": "https://github.com/diaspora-orm/dev-adapter-base#readme",
+	"devDependencies": {
+		"@diaspora/dev-tslint": "^1.0.2",
+		"@types/lodash": "^4.14.121",
+		"jest": "^24.1.0",
+		"ts-jest": "^24.0.0",
+		"tslint": "^5.12.1",
+		"typescript": "^3.3.3"
+	},
+	"dependencies": {
+		"@diaspora/dev-typings": "~0.3.4",
+		"lodash": "^4.17.11",
+		"sequential-event": "^0.4.5"
+	}
+}

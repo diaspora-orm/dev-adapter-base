@@ -1,0 +1,3 @@
+{
+    "extends": ["@diaspora/dev-tslint"]
+}
