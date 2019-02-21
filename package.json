@@ -4,6 +4,7 @@
 	"description": "🔨 FOR DEVELOPMENT PURPOSE ONLY! An abstract adapter for @diaspora/diaspora, that should be extended by all other adapters.",
 	"main": "index.js",
 	"scripts": {
+		"lint": "tslint -t codeFrame 'src/**/*.ts' '__tests__/**/*.ts' -p tsconfig.json",
 		"test": "jest",
 		"build": "tsc"
 	},

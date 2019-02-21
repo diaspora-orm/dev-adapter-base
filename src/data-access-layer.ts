@@ -1,32 +1,12 @@
-import { castArray, Dictionary, forEach, isNil, isNumber, isString, map } from 'lodash';
+import { castArray, Dictionary, forEach, isNil, map } from 'lodash';
 import { SequentialEvent } from 'sequential-event';
 
+import { IDataSourceQuerier } from '@diaspora/dev-typings/dataSourceQuerier';
 import { IEntityAttributes } from '@diaspora/dev-typings/entity';
 import { _QueryLanguage, QueryLanguage } from '@diaspora/dev-typings/queryLanguage';
-import { IDataSourceQuerier } from '@diaspora/dev-typings/dataSourceQuerier';
 
-import { AAdapterEntity, AAdapter } from '.';
-
-/**
- * TODO: Replace with a decorator to register type validation.
- * For instance, mongo may use the new decorator to declare a checking class that may recognize a class instance as an entity uid.
- * It would allow the mongo adapter to use normal mongo uuid as EntityUid type member
- *
- * @author Gerkin
- */
-export class EntityUid {
-	/**
-	 * Use `isEntityUid` to check if the value can be a valid entity uid
-	 *
-	 * @returns True if it is a valid entity Uid, false otherwise.
-	 * @author Gerkin
-	 * @see http://www.ecma-international.org/ecma-262/6.0/#sec-function.prototype-@@hasinstance `Symbol.hasInstance` should defined with `Object.defineProperty`
-	 */
-	public static isEntityUid( query: any ): query is EntityUid {
-		return ( isString( query ) && query !== '' ) ||
-			( isNumber( query ) && query !== 0 );
-	}
-}
+import { AAdapter, AAdapterEntity } from '.';
+import { EntityUid } from './entity-uid';
 
 /**
  * The Data Access Layer class is the components that wraps adapter calls to provide standard inputs & outputs.
@@ -144,14 +124,14 @@ export class DataAccessLayer<
 		collectionName: string,
 		entities: IEntityAttributes[],
 	) {
-		const entitiesRemappedIn = map( entities, ( entity ) =>
+		const entitiesRemappedIn = map( entities, entity =>
 			this.remapInput( collectionName, entity ),
 		);
 		const newEntities = await this.adapter.insertMany(
 			collectionName,
 			entitiesRemappedIn,
 		);
-		return map( newEntities, ( newEntity ) => {
+		return map( newEntities, newEntity => {
 			const newEntityRemapped = this.remapOutput( collectionName, newEntity );
 			return new this.classEntity( newEntityRemapped, this.adapter );
 		} );
@@ -219,7 +199,7 @@ export class DataAccessLayer<
 			finalSearchQuery,
 			optionsNormalized,
 		);
-		return map( foundEntities, ( foundEntity ) => {
+		return map( foundEntities, foundEntity => {
 			const foundEntityRemapped = this.remapOutput( collectionName, foundEntity );
 			return new this.classEntity( foundEntityRemapped, this.adapter );
 		} );
@@ -297,7 +277,7 @@ export class DataAccessLayer<
 			updateRemappedIn,
 			optionsNormalized,
 		);
-		return map( updatedEntities, ( updatedEntity ) => {
+		return map( updatedEntities, updatedEntity => {
 			const updatedEntityRemapped = this.remapOutput(
 				collectionName,
 				updatedEntity,
@@ -501,7 +481,7 @@ export class DataAccessLayer<
 	 * @param eventNames - Name of the events to propagate
 	 */
 	protected transmitEvent( eventNames: string | string[] ) {
-		forEach( castArray( eventNames ), ( eventName ) =>
+		forEach( castArray( eventNames ), eventName =>
 			this.adapter.on( eventName, ( ...args: any[] ) => this.emit( eventName, ...args ) ),
 		);
 	}

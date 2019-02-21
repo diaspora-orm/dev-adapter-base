@@ -3,7 +3,7 @@ import { get, merge } from 'lodash';
 import { EntityUid, IEntityAttributes, IEntityProperties } from '@diaspora/dev-typings/entity';
 
 import { AAdapter, AAdapterEntity } from '..';
-import { Type, generateUUID } from '../a-adapter/adapter-utils';
+import { generateUUID, Type } from '../a-adapter/adapter-utils';
 
 export const AutoIdAdapterEntity = <TAdapterEntity extends AAdapterEntity<TAdapterEntity>>( adapterEntity: Type<TAdapterEntity> ): Type<TAdapterEntity> =>
 	class FactoredAutoIdAdapterEntity extends ( adapterEntity as any ) {
