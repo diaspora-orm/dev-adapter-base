@@ -1,5 +1,20 @@
 {
-  "extends": [
-    "config:base"
-  ]
+	"separateMajorMinor": false,
+	"extends": [
+		":preserveSemverRanges",
+		"group:all",
+		"schedule:weekly",
+		":maintainLockFilesWeekly"
+	],
+	"lockFileMaintenance": {
+		"extends": [
+			"group:all"
+		],
+		"commitMessageAction": "Update"
+	},
+	"automerge": true,
+	"major": {
+		"automerge": false
+	},
+	"baseBranches": ["staging"]
 }
