@@ -34,12 +34,12 @@
 	},
 	"homepage": "https://github.com/diaspora-orm/dev-adapter-base#readme",
 	"devDependencies": {
-		"@diaspora/dev-tslint": "^1.0.2",
-		"@types/lodash": "^4.14.121",
-		"jest": "^24.1.0",
-		"ts-jest": "^24.0.0",
-		"tslint": "^5.12.1",
-		"typescript": "^3.3.3"
+		"@diaspora/dev-tslint": "1.0.1",
+		"@types/lodash": "4.14.121",
+		"jest": "24.1.0",
+		"ts-jest": "24.0.0",
+		"tslint": "5.12.1",
+		"typescript": "3.3.3"
 	},
 	"dependencies": {
 		"@diaspora/dev-typings": "~0.3.4",
