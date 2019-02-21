@@ -34,7 +34,7 @@
 	},
 	"homepage": "https://github.com/diaspora-orm/dev-adapter-base#readme",
 	"devDependencies": {
-		"@diaspora/dev-tslint": "^1.0.2",
+		"@diaspora/dev-tslint": "^1.0.1",
 		"@types/lodash": "^4.14.121",
 		"jest": "^24.1.0",
 		"ts-jest": "^24.0.0",
