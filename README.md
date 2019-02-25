@@ -1,4 +1,4 @@
-@diaspora/dev-typings
+@diaspora/dev-adapter-base
 ===
 
 **🔨 FOR DEVELOPMENT PURPOSE ONLY!**
