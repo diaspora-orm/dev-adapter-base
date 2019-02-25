@@ -662,7 +662,21 @@ describe( 'Query methods', () => {
 		} );
 	} );
 } );
-describe( 'Various, skipped because brain dead', () => {
-	it.todo( '`waitReady`, skipped because brain dead' );
-	it.todo( '`configureCollection`, skipped because brain dead' );
+describe( 'Various', () => {
+	it( '`waitReady` should call the adapter method', () => {
+		const tmpAdapter = new MockAdapter( MockEntity, 'tmp' );
+		const tmpDal = DataAccessLayer.retrieveAccessLayer( tmpAdapter );
+// tslint:disable-next-line: no-floating-promises
+		expect( tmpDal.waitReady() ).toBeInstanceOf( Promise );
+		expect( tmpAdapter.waitReady ).toHaveBeenCalledTimes( 1 );
+	} );
+	it( '`configureCollection` should call the adapter method', () => {
+		const tmpAdapter = new MockAdapter( MockEntity, 'tmp' );
+		const tmpDal = DataAccessLayer.retrieveAccessLayer( tmpAdapter );
+		const remapsIn = {};
+		const remapsOut = {};
+		expect( tmpDal.configureCollection( 'foo', remapsIn, remapsOut ) ).toBe( tmpDal );
+		expect( tmpAdapter.configureCollection ).toHaveBeenCalledTimes( 1 );
+		expect( tmpAdapter.configureCollection ).toHaveBeenCalledWith( 'foo', remapsIn, remapsOut );
+	} );
 } );

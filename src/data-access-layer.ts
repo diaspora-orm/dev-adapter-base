@@ -4,55 +4,22 @@ import { SequentialEvent } from 'sequential-event';
 import { IDataSourceQuerier } from '@diaspora/dev-typings/dataSourceQuerier';
 import { IEntityAttributes, IEntityProperties } from '@diaspora/dev-typings/entity';
 import { _QueryLanguage, QueryLanguage } from '@diaspora/dev-typings/queryLanguage';
+type SearchQuery = QueryLanguage.SearchQuery;
+type IQueryOptions = QueryLanguage.IQueryOptions;
 
 import { AAdapter, AAdapterEntity } from '.';
 import { EntityUid } from './entity-uid';
+import { ICActionArray, ICActionSingle, IRUDActionInArray, IRUDActionInSingle, IRUDActionOutArray, IRUDActionOutSingle } from './types';
 
-interface ICActionSingle {
-	query?: undefined;
-	options?: undefined;
-	rawObj: IEntityAttributes;
-}
-interface ICActionArray {
-	query?: undefined;
-	options?: undefined;
-	rawObj: IEntityAttributes[];
-}
-interface IRUDActionInSingle {
-	query: QueryLanguage.SearchQuery;
-	options: QueryLanguage.IQueryOptions;
-	rawObj?: IEntityAttributes;
-}
-interface IRUDActionInArray {
-	query: QueryLanguage.SearchQuery;
-	options: QueryLanguage.IQueryOptions;
-	rawObj?: IEntityAttributes[];
-}
-interface IRUDActionOutSingle {
-	query: _QueryLanguage.SelectQueryOrCondition;
-	options: _QueryLanguage.IQueryOptions;
-	rawObj?: IEntityAttributes;
-}
-interface IRUDActionOutArray {
-	query: _QueryLanguage.SelectQueryOrCondition;
-	options: _QueryLanguage.IQueryOptions;
-	rawObj?: IEntityAttributes[];
-}
 /**
  * The Data Access Layer class is the components that wraps adapter calls to provide standard inputs & outputs.
  * Typically, it casts raw query & raw query options in standard query & standard query options, and casts POJO from the output of the adapter's query in adapter entity.
  *
  * @author Gerkin
  */
-export class DataAccessLayer<
-	TEntity extends AAdapterEntity<TEntity>,
-	TAdapter extends AAdapter<TEntity>
-> extends SequentialEvent implements IDataSourceQuerier<
-	TEntity,
-	TEntity,
-	QueryLanguage.SearchQuery | undefined,
-	QueryLanguage.IQueryOptions | undefined
-> {
+export class DataAccessLayer<TEntity extends AAdapterEntity<TEntity>, TAdapter extends AAdapter<TEntity>>
+	extends SequentialEvent
+	implements IDataSourceQuerier<TEntity, TEntity, SearchQuery | undefined, IQueryOptions | undefined> {
 	/**
 	 * The registry containing all adapters.
 	 */
@@ -98,7 +65,7 @@ export class DataAccessLayer<
 	 * @param query - Entity ID or query to potentialy transform
 	 */
 	private static ensureQueryObject(
-		query?: QueryLanguage.SearchQuery,
+		query?: SearchQuery,
 	): QueryLanguage.SelectQueryOrCondition {
 		if ( isNil( query ) ) {
 			return {};
@@ -120,10 +87,7 @@ export class DataAccessLayer<
 	 * @param options       - Options to apply to the query
 	 * @returns Returns the normalized query.
 	 */
-	private normalizeQuery(
-		originalQuery: QueryLanguage.SearchQuery | undefined,
-		options: _QueryLanguage.IQueryOptions,
-	) {
+	private normalizeQuery( originalQuery: SearchQuery | undefined, options: _QueryLanguage.IQueryOptions ) {
 		const canonicalQuery = DataAccessLayer.ensureQueryObject( originalQuery );
 		return this.adapter.normalizeQuery( canonicalQuery, options );
 	}
@@ -135,15 +99,11 @@ export class DataAccessLayer<
 	 * @param collectionName - Name of the collection to normalize inputs for.
 	 * @param inputs         - An object containing the CRUD action inputs.
 	 */
-	private normalizeInputs<TCAction extends ICActionSingle | ICActionArray>( collectionName: string, inputs: TCAction ): TCAction;
-	private normalizeInputs( collectionName: string, inputs: IRUDActionInSingle ): IRUDActionOutSingle;
-	private normalizeInputs( collectionName: string, inputs: IRUDActionInArray ): IRUDActionOutArray;
-	private normalizeInputs( collectionName: string, inputs: ICActionSingle | ICActionArray | IRUDActionInSingle | IRUDActionInArray ) {
-		const retObj: {
-			query?: QueryLanguage.SearchQuery;
-			options?: QueryLanguage.IQueryOptions;
-			rawObj?: IEntityAttributes | IEntityAttributes[];
-		} = {};
+	private normalizeInputs<TCAction extends ICActionSingle | ICActionArray>( collectionName: string, inputs: Partial<TCAction> ): TCAction;
+	private normalizeInputs( collectionName: string, inputs: Partial<IRUDActionInSingle> ): IRUDActionOutSingle;
+	private normalizeInputs( collectionName: string, inputs: Partial<IRUDActionInArray> ): IRUDActionOutArray;
+	private normalizeInputs( collectionName: string, inputs: Partial<ICActionSingle | ICActionArray | IRUDActionInSingle | IRUDActionInArray> ) {
+		const retObj: Partial<IRUDActionOutSingle | IRUDActionOutArray> = {};
 		if ( inputs.query || inputs.options ) {// find, update & delete
 			const optionsNormalized = this.adapter.normalizeOptions( inputs.options );
 			const queryNormalized = this.normalizeQuery( inputs.query, optionsNormalized );
@@ -222,23 +182,10 @@ export class DataAccessLayer<
 	 * @param searchQuery    - Description of the entity to find
 	 * @param options        - Options to apply to the query
 	 */
-	public async findOne(
-		collectionName: string,
-		searchQuery: QueryLanguage.SearchQuery = {},
-		options: QueryLanguage.IQueryOptions = {},
-	) {
-		const {
-			query: normalizedQuery,
-			options: normalizedOptions,
-		} = this.normalizeInputs( collectionName, {
-			options,
-			query: searchQuery,
-		} );
-		const foundEntity = await this.adapter.findOne(
-			collectionName,
-			normalizedQuery,
-			normalizedOptions,
-		);
+	public async findOne( collectionName: string, searchQuery: SearchQuery, options: IQueryOptions = {} ) {
+		const { query: normQuery, options: normOpts } =
+			this.normalizeInputs( collectionName, { options, query: searchQuery} );
+		const foundEntity = await this.adapter.findOne( collectionName, normQuery, normOpts );
 		if ( foundEntity ) {
 			const foundEntityRemapped = this.adapter.remapOutput( collectionName, foundEntity );
 			return this.adapter.makeEntity( foundEntityRemapped );
@@ -255,23 +202,10 @@ export class DataAccessLayer<
 	 * @param searchQuery    - Description of the entities to find
 	 * @param options        - Options to apply to the query
 	 */
-	public async findMany(
-		collectionName: string,
-		searchQuery: QueryLanguage.SearchQuery = {},
-		options: QueryLanguage.IQueryOptions = {},
-	) {
-		const {
-			query: normalizedQuery,
-			options: normalizedOptions,
-		} = this.normalizeInputs( collectionName, {
-			options,
-			query: searchQuery,
-		} );
-		const foundEntities = await this.adapter.findMany(
-			collectionName,
-			normalizedQuery,
-			normalizedOptions,
-		);
+	public async findMany( collectionName: string, searchQuery: SearchQuery, options: IQueryOptions = {} ) {
+		const { query: normQuery, options: normOpts } =
+			this.normalizeInputs( collectionName, { options, query: searchQuery } );
+		const foundEntities = await this.adapter.findMany( collectionName, normQuery, normOpts );
 		return map( foundEntities, foundEntity => {
 			const foundEntityRemapped = this.adapter.remapOutput( collectionName, foundEntity );
 			return this.adapter.makeEntity( foundEntityRemapped );
@@ -290,32 +224,12 @@ export class DataAccessLayer<
 	 * @param update         - Properties to modify on the matched entity
 	 * @param options        - Options to apply to the query
 	 */
-	public async updateOne(
-		collectionName: string,
-		searchQuery: QueryLanguage.SearchQuery | undefined = {},
-		update: IEntityAttributes = {},
-		options: QueryLanguage.IQueryOptions = {},
-	) {
-		const {
-			query: normalizedQuery,
-			options: normalizedOptions,
-			rawObj: normalizedUpdate,
-		} = this.normalizeInputs( collectionName, {
-			options,
-			query: searchQuery,
-			rawObj: update,
-		} );
-		const updatedEntity = await this.adapter.updateOne(
-			collectionName,
-			normalizedQuery,
-			normalizedUpdate as IEntityAttributes,
-			normalizedOptions,
-		);
+	public async updateOne( collectionName: string, searchQuery: SearchQuery, update: IEntityAttributes, options: IQueryOptions = {} ) {
+		const { query: normQuery, options: normOpts, rawObj: normUpd } =
+			this.normalizeInputs( collectionName, { options, query: searchQuery, rawObj: update } );
+		const updatedEntity = await this.adapter.updateOne( collectionName, normQuery, normUpd as IEntityAttributes, normOpts );
 		if ( updatedEntity ) {
-			const updatedEntityRemapped = this.adapter.remapOutput(
-				collectionName,
-				updatedEntity,
-			);
+			const updatedEntityRemapped = this.adapter.remapOutput( collectionName, updatedEntity );
 			return this.adapter.makeEntity( updatedEntityRemapped );
 		} else {
 			return undefined;
@@ -331,27 +245,10 @@ export class DataAccessLayer<
 	 * @param update         - Properties to modify on the matched entities
 	 * @param options        - Options to apply to the query
 	 */
-	public async updateMany(
-		collectionName: string,
-		searchQuery: QueryLanguage.SearchQuery | undefined,
-		update: IEntityAttributes,
-		options: QueryLanguage.IQueryOptions = {},
-	) {
-		const {
-			query: normalizedQuery,
-			options: normalizedOptions,
-			rawObj: normalizedUpdate,
-		} = this.normalizeInputs( collectionName, {
-			options,
-			query: searchQuery,
-			rawObj: update,
-		} );
-		const updatedEntities = await this.adapter.updateMany(
-			collectionName,
-			normalizedQuery,
-			normalizedUpdate,
-			normalizedOptions,
-		);
+	public async updateMany( collectionName: string, searchQuery: SearchQuery, update: IEntityAttributes, options: IQueryOptions = {} ) {
+		const { query: normQuery, options: normOpts, rawObj: normUpd } =
+			this.normalizeInputs( collectionName, { options, query: searchQuery, rawObj: update } );
+		const updatedEntities = await this.adapter.updateMany( collectionName, normQuery, normUpd as IEntityAttributes[], normOpts );
 		return map( updatedEntities, updatedEntity => {
 			const updatedEntityRemapped = this.adapter.remapOutput(
 				collectionName,
@@ -372,23 +269,10 @@ export class DataAccessLayer<
 	 * @param searchQuery    - Description of the entity to delete
 	 * @param options        - Options to apply to the query
 	 */
-	public async deleteOne(
-		collectionName: string,
-		searchQuery: QueryLanguage.SearchQuery | undefined = {},
-		options: QueryLanguage.IQueryOptions = {},
-	) {
-		const {
-			query: normalizedQuery,
-			options: normalizedOptions,
-		} = this.normalizeInputs( collectionName, {
-			options,
-			query: searchQuery,
-		} );
-		return this.adapter.deleteOne(
-			collectionName,
-			normalizedQuery,
-			normalizedOptions,
-		);
+	public async deleteOne( collectionName: string, searchQuery: SearchQuery, options: IQueryOptions = {} ) {
+		const { query: normQuery, options: normOpts } =
+			this.normalizeInputs( collectionName, { options, query: searchQuery } );
+		return this.adapter.deleteOne( collectionName, normQuery, normOpts );
 	}
 
 	/**
@@ -399,23 +283,10 @@ export class DataAccessLayer<
 	 * @param searchQuery    - Description of the entities to delete
 	 * @param options        - Options to apply to the query
 	 */
-	public async deleteMany(
-		collectionName: string,
-		searchQuery: QueryLanguage.SearchQuery | undefined = {},
-		options: QueryLanguage.IQueryOptions = {},
-	) {
-		const {
-			query: normalizedQuery,
-			options: normalizedOptions,
-		} = this.normalizeInputs( collectionName, {
-			options,
-			query: searchQuery,
-		} );
-		return this.adapter.deleteMany(
-			collectionName,
-			normalizedQuery,
-			normalizedOptions,
-		);
+	public async deleteMany( collectionName: string, searchQuery: SearchQuery, options: IQueryOptions = {} ) {
+		const { query: normQuery, options: normOpts } =
+			this.normalizeInputs( collectionName, { options, query: searchQuery } );
+		return this.adapter.deleteMany( collectionName, normQuery, normOpts );
 	}
 
 	// -----
@@ -428,23 +299,10 @@ export class DataAccessLayer<
 	 * @param searchQuery    - Description of the entities to match
 	 * @param options        - Options to apply to the query
 	 */
-	public async contains(
-		collectionName: string,
-		searchQuery: QueryLanguage.SearchQuery | undefined,
-		options: QueryLanguage.IQueryOptions | undefined,
-	): Promise<boolean> {
-		const {
-			query: normalizedQuery,
-			options: normalizedOptions,
-		} = this.normalizeInputs( collectionName, {
-			options,
-			query: searchQuery,
-		} );
-		return this.adapter.contains(
-			collectionName,
-			normalizedQuery,
-			normalizedOptions,
-		);
+	public async contains( collectionName: string, searchQuery: SearchQuery, options: IQueryOptions = {} ): Promise<boolean> {
+		const { query: normQuery, options: normOpts } =
+			this.normalizeInputs( collectionName, { options, query: searchQuery } );
+		return this.adapter.contains( collectionName, normQuery, normOpts );
 	}
 
 	/**
@@ -454,23 +312,10 @@ export class DataAccessLayer<
 	 * @param searchQuery    - Description of the entities to match
 	 * @param options        - Options to apply to the query
 	 */
-	public async count(
-		collectionName: string,
-		searchQuery: QueryLanguage.SearchQuery | undefined = {},
-		options: QueryLanguage.IQueryOptions | undefined = {},
-	): Promise<number> {
-		const {
-			query: normalizedQuery,
-			options: normalizedOptions,
-		} = this.normalizeInputs( collectionName, {
-			options,
-			query: searchQuery,
-		} );
-		return this.adapter.count(
-			collectionName,
-			normalizedQuery,
-			normalizedOptions,
-		);
+	public async count( collectionName: string, searchQuery: SearchQuery, options: IQueryOptions = {} ): Promise<number> {
+		const { query: normQuery, options: normOpts } =
+			this.normalizeInputs( collectionName, { options, query: searchQuery } );
+		return this.adapter.count( collectionName, normQuery, normOpts );
 	}
 
 	/**
@@ -480,23 +325,10 @@ export class DataAccessLayer<
 	 * @param searchQuery    - Description of the entities to match
 	 * @param options        - Options to apply to the query
 	 */
-	public async every(
-		collectionName: string,
-		searchQuery: QueryLanguage.SearchQuery | undefined = {},
-		options: QueryLanguage.IQueryOptions | undefined = {},
-	): Promise<boolean> {
-		const {
-			query: normalizedQuery,
-			options: normalizedOptions,
-		} = this.normalizeInputs( collectionName, {
-			options,
-			query: searchQuery,
-		} );
-		return this.adapter.every(
-			collectionName,
-			normalizedQuery,
-			normalizedOptions,
-		);
+	public async every( collectionName: string, searchQuery: SearchQuery, options: IQueryOptions = {} ): Promise<boolean> {
+		const { query: normQuery, options: normOpts } =
+			this.normalizeInputs( collectionName, { options, query: searchQuery } );
+		return this.adapter.every( collectionName, normQuery, normOpts );
 	}
 
 	// -----
