@@ -1,76 +1,80 @@
 {
-	"name": "@diaspora/dev-adapter-base",
-	"version": "0.3.4",
-	"description": "🔨 FOR DEVELOPMENT PURPOSE ONLY! An abstract adapter for @diaspora/diaspora, that should be extended by all other adapters.",
-	"main": "index.js",
-	"scripts": {
-		"lint": "tslint -t codeFrame 'src/**/*.ts' '__tests__/**/*.ts' -p tsconfig.json",
-		"lint:fix": "tslint -t codeFrame 'src/**/*.ts' '__tests__/**/*.ts' -p tsconfig.json --fix",
-		"test": "jest",
-		"test:watch": "jest --watch",
-		"test:coverage": "jest --coverage",
-		"test:ci": "npm run lint && npm run test:coverage -- --no-cache",
-		"build": "rimraf dist && tsc"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/diaspora-orm/dev-adapter-base.git"
-	},
-	"keywords": [
-		"diaspora",
-		"adapter",
-		"node",
-		"browser",
-		"orm",
-		"db",
-		"collection",
-		"database",
-		"query",
-		"object"
-	],
-	"author": {
-		"name": "Gerkin",
-		"email": "nihilivin@gmail.com",
-		"url": "https://www.gerkindevelopment.net"
-	},
-	"license": "Apache-2.0",
-	"bugs": {
-		"url": "https://github.com/diaspora-orm/dev-adapter-base/issues"
-	},
-	"homepage": "https://github.com/diaspora-orm/dev-adapter-base#readme",
-	"devDependencies": {
-		"@diaspora/dev-tslint": "^1.0.3",
-		"@types/jest": "^24.0.6",
-		"@types/lodash": "^4.14.121",
-		"jest": "^24.1.0",
-		"rimraf": "^2.6.3",
-		"ts-jest": "^24.0.0",
-		"tslint": "^5.12.1",
-		"typescript": "^3.3.3"
-	},
-	"dependencies": {
-		"@diaspora/dev-typings": "~0.3.4",
-		"lodash": "^4.17.11",
-		"sequential-event": "^0.4.5"
-	},
-	"jest": {
-		"preset": "ts-jest",
-		"roots": [
-			"<rootDir>/src",
-			"<rootDir>/__tests__"
-		],
-		"moduleFileExtensions": [
-			"js",
-			"ts"
-		],
-		"collectCoverageFrom": [
-			"src/**/*.{js,ts}"
-		],
-		"globals": {
-			"ts-jest": {
-				"tsConfig": "tsconfig.test.json",
-				"diagnostics": false
-			}
-		}
-	}
+  "name": "@diaspora/dev-adapter-base",
+  "version": "0.3.4",
+  "description": "🔨 FOR DEVELOPMENT PURPOSE ONLY! An abstract adapter for @diaspora/diaspora, that should be extended by all other adapters.",
+  "main": "index.js",
+  "scripts": {
+    "lint": "tslint -t codeFrame 'src/**/*.ts' '__tests__/**/*.ts' -p tsconfig.json",
+    "lint:fix": "tslint -t codeFrame 'src/**/*.ts' '__tests__/**/*.ts' -p tsconfig.json --fix",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:ci": "npm run lint && npm run test:coverage -- --no-cache",
+    "build": "rimraf dist && tsc",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/diaspora-orm/dev-adapter-base.git"
+  },
+  "keywords": [
+    "diaspora",
+    "adapter",
+    "node",
+    "browser",
+    "orm",
+    "db",
+    "collection",
+    "database",
+    "query",
+    "object"
+  ],
+  "author": {
+    "name": "Gerkin",
+    "email": "nihilivin@gmail.com",
+    "url": "https://www.gerkindevelopment.net"
+  },
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/diaspora-orm/dev-adapter-base/issues"
+  },
+  "homepage": "https://github.com/diaspora-orm/dev-adapter-base#readme",
+  "devDependencies": {
+    "@diaspora/dev-tslint": "^1.0.3",
+    "@types/jest": "^24.0.6",
+    "@types/lodash": "^4.14.121",
+    "jest": "^24.1.0",
+    "rimraf": "^2.6.3",
+    "ts-jest": "^24.0.0",
+    "tslint": "^5.12.1",
+    "typescript": "^3.3.3"
+  },
+  "dependencies": {
+    "@diaspora/dev-typings": "~0.3.4",
+    "lodash": "^4.17.11",
+    "sequential-event": "^0.4.5",
+    "snyk": "^1.189.0"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "roots": [
+      "<rootDir>/src",
+      "<rootDir>/__tests__"
+    ],
+    "moduleFileExtensions": [
+      "js",
+      "ts"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.{js,ts}"
+    ],
+    "globals": {
+      "ts-jest": {
+        "tsConfig": "tsconfig.test.json",
+        "diagnostics": false
+      }
+    }
+  },
+  "snyk": true
 }
