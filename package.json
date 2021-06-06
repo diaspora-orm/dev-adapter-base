@@ -42,7 +42,7 @@
 		"@diaspora/dev-tslint": "^1.0.3",
 		"@types/jest": "^24.0.6",
 		"@types/lodash": "^4.14.121",
-		"jest": "^24.1.0",
+		"jest": "^25.0.0",
 		"rimraf": "^2.6.3",
 		"ts-jest": "^24.0.0",
 		"tslint": "^5.12.1",
